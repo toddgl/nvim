@@ -1,3 +1,4 @@
+
 -- Keybindings for neovim editor
 
 -- Redefine map leader from "\" to " "
@@ -24,21 +25,3 @@ map("n", "<leader>r", "<CMD>Neotree focus<CR>")
 -- New Windows
 map("n", "<leader>o", "<CMD>vsplit<CR>")
 map("n", "<leader>p", "<CMD>split<CR>")
-
--- Window Navigation
-map("n", "<C-h>", "<C-w>h")
-map("n", "<C-l>", "<C-w>l")
-map("n", "<C-k>", "<C-w>k")
-map("n", "<C-j>", "<C-w>j")
-
--- Resize Windows
-map("n", "<C-Left>", "<C-w><")
-map("n", "<C-Right>", "<C-w>>")
-map("n", "<C-Up>", "<C-w>+")
-map("n", "<C-Down>", "<C-w>-")
-
--- Find files
-map("n", "<leader>ff", "<cmd>Telescope find_files<cr>")
-
--- Show files in buffer
-map("n", "<leader>fb", "<cmd>Telescope buffers<cr>")
