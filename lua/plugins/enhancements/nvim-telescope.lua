@@ -5,11 +5,18 @@ local builtin = require("telescope.builtin")
 return {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.6",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        -- Native fzf (requires build, faster)
+        { "nvim-telescope/telescope-fzf-native.nvim", build = "make", optional = true },
+        -- Lua fallback
+        { "nvim-telescope/telescope-fzf-writer.nvim", optional = true },
+    },
     config = function()
+        local telescope = require("telescope")
         local builtin = require("telescope.builtin")
 
-        -- helper to grab visual selection
+        -- helper to grab visual selection text
         local function get_visual_selection()
             local _, ls, cs = unpack(vim.fn.getpos("'<"))
             local _, le, ce = unpack(vim.fn.getpos("'>"))
@@ -20,22 +27,25 @@ return {
             return table.concat(lines, "\n")
         end
 
-        -- keymaps
+        -- Normal mode mappings
         vim.keymap.set("n", "<leader>tf", builtin.find_files, { desc = "Find files" })
         vim.keymap.set("n", "<leader>ts", builtin.live_grep,  { desc = "Live grep" })
         vim.keymap.set("n", "<leader>tb", builtin.buffers,    { desc = "List buffers" })
         vim.keymap.set("n", "<leader>tr", builtin.resume,     { desc = "Resume picker" })
-
         vim.keymap.set("n", "<leader>tg", function()
             builtin.grep_string({ search = vim.fn.expand("<cword>") })
         end, { desc = "Grep word under cursor" })
 
+        -- Visual mode mapping
         vim.keymap.set("v", "<leader>tv", function()
             builtin.grep_string({ search = get_visual_selection() })
         end, { desc = "Grep visual selection" })
+
+        -- Try native fzf first, fallback to fzf_writer
+        local ok, _ = pcall(telescope.load_extension, "fzf")
+        if not ok then
+            pcall(telescope.load_extension, "fzf_writer")
+        end
     end,
-    extensions = {
-        "fzf",
-    },
 }
 
