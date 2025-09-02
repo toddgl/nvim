@@ -13,6 +13,21 @@ require("lspconfig").bashls.setup({})
 require("lspconfig").clangd.setup({})
 require("lspconfig").pyright.setup({})
 
+-- Load pylsp to enable the Ruff plugin
+require("lspconfig").pylsp.setup({
+  settings = {
+    pylsp = {
+      plugins = {
+        ruff = {
+          enabled = true,
+          formatEnabled = true,
+          -- Other settings can be configured here
+        },
+      },
+    },
+  },
+})
+
 -- In your init.lua or lua/config/keymaps.lua
 local menu = require("menu")
 vim.keymap.set("n", "<C-m>", function()

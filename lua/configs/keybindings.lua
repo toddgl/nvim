@@ -25,3 +25,4 @@ map("n", "<leader>r", "<CMD>Neotree focus<CR>")
 -- New Windows
 map("n", "<leader>o", "<CMD>vsplit<CR>")
 map("n", "<leader>p", "<CMD>split<CR>")
+

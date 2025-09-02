@@ -59,6 +59,15 @@ return {
                 lualine_y = {},
                 lualine_z = { 'location' },
             },
+            winbar ={
+                -- Lualine sections for the winbar
+                lualine_c= {'filename', 'lsp_progress'}
+            },
+            inactive_winbar = {
+                -- Display a minimal winbar for inactive windows
+                lualine_c = {'filename'}
+
+            },
             tabline = {},
             extensions = {},
         }

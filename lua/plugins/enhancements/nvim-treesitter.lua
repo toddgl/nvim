@@ -5,6 +5,7 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     build = ":TSUpdate",
     dependencies = {
+        "neovim/nvim-lspconfig",
         "windwp/nvim-ts-autotag",
     },
     config = function()
