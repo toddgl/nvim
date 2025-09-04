@@ -26,3 +26,8 @@ map("n", "<leader>r", "<CMD>Neotree focus<CR>")
 map("n", "<leader>o", "<CMD>vsplit<CR>")
 map("n", "<leader>p", "<CMD>split<CR>")
 
+-- none-ls
+vim.keymap.set("n", "<leader>f", function()
+  vim.lsp.buf.format({ async = true })
+end, { desc = "Format current buffer" })
+
