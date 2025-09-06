@@ -1,6 +1,6 @@
 -- Completion capabilities for neovim
 -- File: lua/plugins/enhancements/nvim-cmp.lua
--- Completion setup for Lazy.nvim with lspkind integration
+-- Completion setup for Lazy.nvim with lspkind, borders, and nice highlights
 
 return {
   {
@@ -19,7 +19,7 @@ return {
       local luasnip = require("luasnip")
       local lspkind = require("lspkind")
 
-      -- Load friendly-snippets if you like
+      -- Load VSCode-style snippets
       require("luasnip.loaders.from_vscode").lazy_load()
 
       cmp.setup({
@@ -73,7 +73,23 @@ return {
             },
           }),
         },
+        window = {
+          completion = cmp.config.window.bordered({
+            border = "rounded",
+            winhighlight = "Normal:CmpPmenu,CursorLine:CmpSel,Search:None",
+          }),
+          documentation = cmp.config.window.bordered({
+            border = "rounded",
+            winhighlight = "Normal:CmpDoc,FloatBorder:CmpDocBorder",
+          }),
+        },
       })
+
+      -- Optional custom highlights (tweak colors to taste)
+      vim.api.nvim_set_hl(0, "CmpPmenu", { link = "NormalFloat" })
+      vim.api.nvim_set_hl(0, "CmpSel", { bg = "#2e3440", fg = "#88c0d0" })
+      vim.api.nvim_set_hl(0, "CmpDoc", { link = "NormalFloat" })
+      vim.api.nvim_set_hl(0, "CmpDocBorder", { link = "FloatBorder" })
     end,
   },
 }
