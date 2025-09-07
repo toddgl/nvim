@@ -17,7 +17,8 @@ require("lspconfig").pyright.setup({})
 
 local menu = require("menu")
 vim.keymap.set("n", "<C-m>", function()
-  menu.open(require("menu_definitions").default) -- Replace with the path to your menu table
+  -- menu.open(require("menu_definitions").default) -- Replace with the path to your menu table
+  require("menu").open("default")
 end, { noremap = true, silent = true })
 
 -- Set up the which-key leader menu
