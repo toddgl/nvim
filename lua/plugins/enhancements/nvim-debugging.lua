@@ -14,9 +14,11 @@ return {
       { "<leader>dT", function() require("dap").terminate() end, desc = "Terminate" },
     },
     dependencies = {
+      "nvim-neotest/nvim-nio",
+      "theHamsta/nvim-dap-virtual-text",
       {
         "igorlfs/nvim-dap-view",
-        opts = { auto_toggle = true },
+        opts = { auto_toggle = false },
       },
     },
   },
