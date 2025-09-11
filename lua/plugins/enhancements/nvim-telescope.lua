@@ -1,15 +1,13 @@
 -- A highly extendable fuzzy finder over lists
 
-local builtin = require("telescope.builtin")
+-- telescope plugin spec
 
 return {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.6",
+    tag = "0.1.8",
     dependencies = {
         "nvim-lua/plenary.nvim",
-        -- Native fzf (requires build, faster)
         { "nvim-telescope/telescope-fzf-native.nvim", build = "make", optional = true },
-        -- Lua fallback
         { "nvim-telescope/telescope-fzf-writer.nvim", optional = true },
     },
     config = function()
