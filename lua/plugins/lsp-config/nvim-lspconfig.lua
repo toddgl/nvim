@@ -9,32 +9,38 @@
 --   JS/TS (when you enable it below): npm i -g typescript typescript-language-server
 --   HTML/CSS (when you enable it below): npm i -g vscode-langservers-extracted
 --
--- This is a Lazy.nvim plugin spec table.
--- It configures nvim-lspconfig and friends.
+-- Using vim.lsp.config (new recommended API)
+-- Goal: Modern LSP setup using vim.lsp.start() (no lspconfig dependency for setup)
+-- Works with pylsp + Ruff by default, with toggles/placeholders for other languages.
+-- Adds executable checks so missing servers are skipped gracefully.
 
 return {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp", -- optional, for completion capabilities
+      "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
+      -------------------------------------------------------------------------
       -- Ensure /usr/local/bin is in PATH (important on FreeBSD GUI sessions)
+      -------------------------------------------------------------------------
       if not string.find(vim.env.PATH or "", "/usr/local/bin", 1, true) then
         vim.env.PATH = "/usr/local/bin:" .. (vim.env.PATH or "")
       end
 
-      local lspconfig = require("lspconfig")
-
+      -------------------------------------------------------------------------
       -- Capabilities (with cmp_nvim_lsp if available)
+      -------------------------------------------------------------------------
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok_cmp, cmp = pcall(require, "cmp_nvim_lsp")
       if ok_cmp then
         capabilities = cmp.default_capabilities(capabilities)
       end
 
-      -- on_attach with keymaps and format-on-save
+      -------------------------------------------------------------------------
+      -- on_attach: Keymaps + format-on-save
+      -------------------------------------------------------------------------
       local function on_attach(client, bufnr)
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
@@ -62,21 +68,49 @@ return {
         end
       end
 
-      -- Command to toggle format-on-save for Python
+      -------------------------------------------------------------------------
+      -- Toggle command for Python format-on-save
+      -------------------------------------------------------------------------
       vim.api.nvim_create_user_command("FormatOnSavePythonToggle", function()
         vim.g.format_on_save_python = not vim.g.format_on_save_python
         vim.notify("Python format-on-save: " .. (vim.g.format_on_save_python and "ON" or "OFF"))
       end, {})
 
+      -------------------------------------------------------------------------
       -- Warn if Ruff is missing
+      -------------------------------------------------------------------------
       if vim.fn.executable("ruff") ~= 1 then
         vim.notify("[pylsp-ruff] 'ruff' not found in $PATH", vim.log.levels.WARN)
       end
 
+      -------------------------------------------------------------------------
+      -- Helper: Start an LSP server using vim.lsp.start(), skipping if missing
+      -------------------------------------------------------------------------
+      local function setup_server(name, opts)
+        local binary = opts.cmd and opts.cmd[1] or name
+        if vim.fn.executable(binary) ~= 1 then
+          vim.notify(
+            string.format("[LSP] Skipping %s (executable not found: %s)", name, binary),
+            vim.log.levels.WARN
+          )
+          return
+        end
+
+        local config = {
+          name = name,
+          cmd = opts.cmd or { name },
+          root_dir = opts.root_dir or vim.fs.root(0, { ".git", "pyproject.toml" }),
+          settings = opts.settings,
+          capabilities = capabilities,
+          on_attach = on_attach,
+        }
+        vim.lsp.start(config)
+      end
+
+      -------------------------------------------------------------------------
       -- Stage 1: Python + Ruff
-      lspconfig.pylsp.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
+      -------------------------------------------------------------------------
+      setup_server("pylsp", {
         settings = {
           pylsp = {
             plugins = {
@@ -97,34 +131,39 @@ return {
         },
       })
 
+      -------------------------------------------------------------------------
       -- Stage 2: JS/TS (enable when needed)
+      -------------------------------------------------------------------------
       local enable_js_ts = false
       if enable_js_ts then
-        if lspconfig.ts_ls then
-          lspconfig.ts_ls.setup({ on_attach = on_attach, capabilities = capabilities })
-        elseif lspconfig.tsserver then
-          lspconfig.tsserver.setup({ on_attach = on_attach, capabilities = capabilities })
-        end
+        setup_server("tsserver", {})
       end
 
+      -------------------------------------------------------------------------
       -- Stage 3: HTML/CSS (enable when needed)
-      local enable_html_css = false
+      -------------------------------------------------------------------------
+      local enable_html_css = true
       if enable_html_css then
-        if lspconfig.html then
-          lspconfig.html.setup({ on_attach = on_attach, capabilities = capabilities })
-        end
-        if lspconfig.cssls then
-          lspconfig.cssls.setup({ on_attach = on_attach, capabilities = capabilities })
-        end
+        setup_server("html", {})
+        setup_server("cssls", {})
       end
 
+      -------------------------------------------------------------------------
       -- Stage 4: PHP (enable when needed)
+      -------------------------------------------------------------------------
       local enable_php = false
-      if enable_php and lspconfig.intelephense then
-        lspconfig.intelephense.setup({ on_attach = on_attach, capabilities = capabilities })
+      if enable_php then
+        setup_server("intelephense", {})
       end
 
+      -------------------------------------------------------------------------
+      -- Stage 5: Bash
+      -------------------------------------------------------------------------
+      setup_server("bashls", {})
+
+      -------------------------------------------------------------------------
       -- Diagnostics config
+      -------------------------------------------------------------------------
       vim.diagnostic.config({
         virtual_text = true,
         signs = true,
@@ -135,4 +174,3 @@ return {
     end,
   },
 }
-

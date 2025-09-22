@@ -27,25 +27,56 @@ return {
     "rcarriga/nvim-dap-ui",
     config = function()
       local dap, dapui = require("dap"), require("dapui")
-      dapui.setup()
+
+      dapui.setup({
+        -- Customize the default layout
+        layouts = {
+          {
+            elements = {
+              { id = "scopes", size = 0.25 },
+              { id = "breakpoints", size = 0.25 },
+              { id = "stacks", size = 0.25 },
+              { id = "watches", size = 0.25 },
+            },
+            size = 40,
+            position = "right",
+          },
+          {
+            elements = {
+              "repl",
+              "console",
+            },
+            size = 0.25,
+            position = "bottom",
+          },
+        },
+        controls = {
+          enabled = true,
+          element = "repl",
+          icons = {
+            pause = "",
+            play = "",
+            step_into = "",
+            step_over = "",
+            step_out = "",
+            terminate = "",
+          },
+        },
+        floating = {
+          max_height = nil,
+          max_width = nil,
+          border = "single",
+          mappings = { close = { "q", "<Esc>" } },
+        },
+      })
 
       -- Auto open/close dap-ui
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
-      end
+      dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+      dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+      dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
     end,
     keys = {
-      {
-        "<leader>du",
-        function() require("dapui").toggle({}) end,
-        desc = "Debug: Toggle UI",
-      },
+      { "<leader>du", function() require("dapui").toggle({}) end, desc = "Debug: Toggle UI" },
     },
     dependencies = {
       {
@@ -55,10 +86,7 @@ return {
           automatic_installation = false,
           ensure_installed = {},
         },
-        dependencies = {
-          "mfussenegger/nvim-dap",
-          "mason-org/mason.nvim",
-        },
+        dependencies = { "mfussenegger/nvim-dap", "mason-org/mason.nvim" },
       },
       {
         "mfussenegger/nvim-dap-python",
@@ -88,13 +116,12 @@ return {
       { "nvim-neotest/nvim-nio" },
       {
         "theHamsta/nvim-dap-virtual-text",
-        config = true, -- inline virtual text
+        config = true,
         dependencies = { "mfussenegger/nvim-dap" },
       },
     },
   },
 
-  -- 🔥 Lualine integration for dap status + breakpoints
   {
     "nvim-lualine/lualine.nvim",
     dependencies = { "mfussenegger/nvim-dap" },
