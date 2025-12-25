@@ -45,6 +45,7 @@ All muy plugins are installed in the lua/plugins/enhancements folder
     - Menu ui for neovim ( supports nested menus )
  - [X] render markdown
     - Plugin to improve viewing Markdown files in Neovim 
+>[!WARNING] Here is a callout title
  - [X] telescope
     - a fuzzy finder with preview pick 
     - <leader>t_
