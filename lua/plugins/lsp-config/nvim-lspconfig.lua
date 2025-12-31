@@ -162,6 +162,32 @@ return {
       setup_server("bashls", {})
 
       -------------------------------------------------------------------------
+      -- Stage 6: YAML
+      -------------------------------------------------------------------------
+      setup_server("yamlls", {
+          cmd = { "yaml-language-server", "--stdio" },
+          settings = {
+              yaml = {
+                  keyOrdering = false, -- don’t complain about map key order
+                  format = {
+                      enable = true,
+                  },
+                  validate = true,
+                  hover = true,
+                  completion = true,
+
+                  -- Optional: common schemas (Kubernetes, GitHub Actions, etc.)
+                  schemas = {
+                      kubernetes = "/*.k8s.yaml",
+                      ["http://json.schemastore.org/github-workflow"] = "/.github/workflows/*",
+                      ["http://json.schemastore.org/github-action"] = "/.github/action.{yml,yaml}",
+                      ["http://json.schemastore.org/docker-compose"] = "docker-compose*.{yml,yaml}",
+                  },
+              },
+          },
+      })
+
+      -------------------------------------------------------------------------
       -- Diagnostics config
       -------------------------------------------------------------------------
       vim.diagnostic.config({
