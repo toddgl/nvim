@@ -31,3 +31,9 @@ vim.keymap.set("n", "<leader>f", function()
   vim.lsp.buf.format({ async = true })
 end, { desc = "Format current buffer" })
 
+-- Refactoring
+-- Set <leader>rn to call the built-in LSP rename function
+vim.keymap.set("n", "<leader>rn", function()
+  vim.lsp.buf.rename()
+end, { desc = "LSP rename" })
+
