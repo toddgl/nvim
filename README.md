@@ -58,6 +58,8 @@ All muy plugins are installed in the lua/plugins/enhancements folder
     - a plug in to use the gemini AI functionality
     - Use the keymap <leader>og to open and close the Gemini CLI window.
     - In visual mode, select one or more lines and use the keymap <leader>sg to send the selected text to the Gemini CLI. If the CLI window is not open, a floating message will prompt you to open it first.
+- [X] nvim-taskwarrior
+    - Provide integration with taskwarior use <Leader> n to access
 - [X] nvim-gemini-companion
     - Brings the power of AI agents like Gemini and Qwen directly into the Neovim workflow. 🌟 Enjoy seamless diff views, agent management, and smart file modifications without leaving the editor.
     - Core Commands
