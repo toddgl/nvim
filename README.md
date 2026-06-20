@@ -29,7 +29,7 @@ All muy plugins are installed in the lua/plugins/enhancements folder
     - Use (neo)vim terminal in the floating/popup window.
     - :FloatermNew <cmd> e.g. :FloatermNew python
     - or <F7> to open terminal window
- - [x] laxygit
+ - [x] lazygit
     - <leader>lg or :LazyGit
  - [X] lsp ui
     - adds a clear, consistent iconography layer to Neovim’s completion UI (LSP, snippets, paths, etc.). 
@@ -69,3 +69,9 @@ All muy plugins are installed in the lua/plugins/enhancements folder
         - :GeminiSendLineDiagnostic - Send line diagnostics to AI
         - :GeminiSendFileDiagnostic - Send file diagnostics to AI
         - :GeminiSwitchSidebarStyle - Switch the appearance/style of the sidebar
+ - [X] typst-preview.nvim
+    - Core Commands
+        - TypstPreviewOpen 	Opens the preview
+        - TypstPreviewClose 	Closes the preview
+        - TypstPreviewGoTo n 	Go to page n
+        - TypstPreviewLogs 	Show logs (will contain the compilation errors if any)

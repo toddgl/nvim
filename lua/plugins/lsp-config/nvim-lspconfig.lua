@@ -57,6 +57,57 @@ return {
             })
           end
         end
+
+        -------------------------------------------------------------------
+        -- Typst / Tinymist: Live Zathura Preview Engine Injection
+        -------------------------------------------------------------------
+        if vim.bo[bufnr].filetype == "typst" then
+          local file_path = vim.fn.expand("%:p")
+          local pdf_path = vim.fn.expand("%:p:r") .. ".pdf"
+          local zathura_pid = nil
+
+          -- 1. Spin up Zathura
+          local function launch_preview()
+            if zathura_pid then return end
+            
+            local job_id = vim.fn.jobstart({ "zathura", pdf_path }, {
+              detach = true,
+              on_exit = function()
+                zathura_pid = nil
+              end
+            })
+            
+            if job_id > 0 then
+              zathura_pid = vim.fn.jobpid(job_id)
+            end
+          end
+
+          launch_preview()
+
+          -- 2. Clean teardown using Neovim 0.12 compatible process engine
+          vim.api.nvim_create_autocmd("BufWipeout", {
+            buffer = bufnr,
+            once = true,
+            callback = function()
+              if zathura_pid then
+                vim.loop.kill(zathura_pid, 15) -- SIGTERM
+              end
+            end,
+          })
+
+          -- 3. Non-conflicting Forward Sync mapping (<leader>mp)
+          map("n", "<leader>mp", function()
+            local line = vim.fn.line(".")
+            local col = vim.fn.col(".")
+            
+            vim.fn.jobstart({
+              "zathura",
+              "--synctex-forward",
+              string.format("%d:%d:%s", line, col, file_path),
+              pdf_path
+            }, { detach = true })
+          end, "Typst: Forward Sync to Zathura")
+        end
       end
 
       -----------------------------------------------------------------------
@@ -81,21 +132,44 @@ return {
           return
         end
 
+        -- Look for a project root indicator, or fall back gracefully
+        local root = vim.fs.root(0, { ".git", "typst.toml", "pyproject.toml" })
+        if not root then
+          -- Fallback: Use the directory of the currently open file
+          root = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+        end
+        if root == "" then
+          -- Last resort: Current working directory
+          root = vim.fn.getcwd()
+        end
+
         vim.lsp.start({
           name = name,
           cmd = opts.cmd or { name },
-          root_dir = opts.root_dir
-            or vim.fs.root(0, { ".git", "pyproject.toml" }),
+          root_dir = root, -- Safe and guaranteed root path
           settings = opts.settings,
           capabilities = capabilities,
           on_attach = on_attach,
         })
       end
-
+      
       -----------------------------------------------------------------------
       -- Declarative LSP server table
       -----------------------------------------------------------------------
       local servers = {
+        -------------------------------------------------------------------
+        -- Typst Compiler & Language Server
+        -------------------------------------------------------------------
+        tinymist = {
+          -- Explicitly define the system command wrapper 
+          cmd = { "tinymist" },
+          -- Overriding capabilities to use clean, native protocol definitions
+          capabilities = vim.lsp.protocol.make_client_capabilities(),
+          settings = {
+            exportPdf = "onSave",
+          },
+        },
+
         -------------------------------------------------------------------
         -- Python + Ruff (enabled by default)
         -------------------------------------------------------------------
@@ -120,20 +194,10 @@ return {
           },
         },
 
-        -------------------------------------------------------------------
-        -- Bash
-        -------------------------------------------------------------------
         bashls = {},
-
-        -------------------------------------------------------------------
-        -- HTML / CSS
-        -------------------------------------------------------------------
         html = {},
         cssls = {},
 
-        -------------------------------------------------------------------
-        -- YAML
-        -------------------------------------------------------------------
         yamlls = {
           cmd = { "yaml-language-server", "--stdio" },
           settings = {
@@ -155,19 +219,22 @@ return {
             },
           },
         },
-
-        -------------------------------------------------------------------
-        -- Optional / disabled by default (uncomment when needed)
-        -------------------------------------------------------------------
-        -- tsserver = {},
-        -- intelephense = {},
       }
 
       -----------------------------------------------------------------------
       -- Start all declared servers
       -----------------------------------------------------------------------
       for name, opts in pairs(servers) do
-        start_server(name, opts)
+        -- Use the server's specific capabilities if declared, otherwise fall back to global ones
+        local server_capabilities = opts.capabilities or capabilities
+        
+        local final_opts = {
+          cmd = opts.cmd,
+          settings = opts.settings,
+          capabilities = server_capabilities,
+        }
+        
+        start_server(name, final_opts)
       end
 
       -----------------------------------------------------------------------

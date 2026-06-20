@@ -8,6 +8,9 @@ require("configs.keybindings")
 -- Load plugin manager
 require("plugins.manager.lazy")
 
+-- Load the gemini-api-key
+vim.env.GEMINI_API_KEY = "AIzaSyA1T4gFljwNcSgN7cDhafxLfMmdPh_84i4"
+
 -- In your init.lua or lua/config/keymaps.lua
 
 local menu = require("menu")
