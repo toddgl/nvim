@@ -75,3 +75,6 @@ All muy plugins are installed in the lua/plugins/enhancements folder
         - TypstPreviewClose 	Closes the preview
         - TypstPreviewGoTo n 	Go to page n
         - TypstPreviewLogs 	Show logs (will contain the compilation errors if any)
+- [X] screenkey.nvim-tree
+    - It displays a floating window with your recently typed characters
+        - :Screenkey
